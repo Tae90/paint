@@ -4,11 +4,11 @@ const ctx = canvas.getContext("2d");
 
 const colorBtns = document.querySelectorAll(".pallet button")
 const eraserBtn = document.querySelector("#eraser")
-const downloadBtn = document.querySelectorAll("#download")
+const downloadBtn = document.querySelector("#download")
 
 // 그리기 설정
 let isDrawing = false;
-let isErasin = false;
+let isErasing = false;
 
 ctx.lineWidth = 5;
 ctx.strokeStyle = "red";
@@ -22,9 +22,9 @@ function startDrawing(e) {
 
 function drawing(e) {
     if (!isDrawing) return;
-    if (isErasin) {
+    if (isErasing) {
         //지우개
-        console.log("erasing...");
+        ctx.clearRect(e.offsetX, e.offsetY, 20, 20)
     } else {
         ctx.lineTo(e.offsetX, e.offsetY);
         ctx.stroke();
@@ -38,13 +38,23 @@ function stopDrawing() {
 }
 
 function startErasing(e) {
-    isErasin = true;
+    isErasing = true;
     colorBtns.forEach((button) => button.classList.remove("selected"));
     e.currentTarget.classList.add("selected");
 }
 
+function downloadCanvas() {
+    const image = canvas.toDataURL("image/png", 1.0);
+    const linkEl = document.createElement('a');
+    linkEl.href = image;
+    linkEl.download = "PaintApp";
+    linkEl.click();
+}
+
+
 //내가 선택한 코드 활성화
 function changeColor(e) {
+    isErasing = false;
     ctx.strokeStyle = e.currentTarget.dataset.color;
     colorBtns.forEach(button => {
         if (button === e.currentTarget) {
@@ -53,6 +63,7 @@ function changeColor(e) {
             button.classList.remove("selected");
         }
     })
+    eraserBtn.classList.remove("selected");
 }
 
 
@@ -62,3 +73,4 @@ canvas.addEventListener("mousemove", drawing);
 canvas.addEventListener("mouseup", stopDrawing);
 colorBtns.forEach((button) => button.addEventListener("click", changeColor));
 eraserBtn.addEventListener("click", startErasing);
+downloadBtn.addEventListener("click", downloadCanvas)
